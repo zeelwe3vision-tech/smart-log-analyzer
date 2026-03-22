@@ -1,16 +1,27 @@
 from analyzer.log_parser import parse_logs
 from analyzer.anomaly_detector import detect_anomalies
-from analyzer.report_generator import generate_summary
+from alert_manager import send_alert
+from search_engine import search_logs
 
-log_file = "logs/sample.log"
+LOG_FILE = "logs/sample.log"
 
-df = parse_logs(log_file)
-anomalies = detect_anomalies(df)
-summary = generate_summary(df, anomalies)
+def run_pipeline():
+    print("📊 Parsing logs...")
+    df = parse_logs(LOG_FILE)
 
-print("\n===== LOG SUMMARY =====")
-for key, value in summary.items():
-    print(f"{key}: {value}")
+    print("🔍 Detecting anomalies...")
+    anomalies = detect_anomalies(df)
 
-print("\n===== ANOMALIES =====")
-print(anomalies)
+    print("🚨 Sending alerts...")
+    send_alert(anomalies)
+
+    print("🔎 Searching ERROR logs...")
+    errors = search_logs(df, "error")
+
+    print("\n=== SUMMARY ===")
+    print(f"Total Logs: {len(df)}")
+    print(f"Anomalies: {len(anomalies)}")
+    print(f"Errors: {len(errors)}")
+
+if __name__ == "__main__":
+    run_pipeline()
